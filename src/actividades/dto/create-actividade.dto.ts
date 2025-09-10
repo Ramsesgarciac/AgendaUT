@@ -4,7 +4,8 @@ import {
     Length, 
     IsDate, 
     IsNumber,
-    IsDateString
+    IsDateString,
+    IsISO8601
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
@@ -29,9 +30,8 @@ export class CreateActividadeDto {
     @Length(1, 50)
     tipoActividad: string;
 
-    @IsDateString()
-    @Transform(({ value }) => new Date(value))
-    fechaLimite: Date;
+    @IsISO8601()  // Sin transform
+    fechaLimite: string;  // Mantener como string
 
     @IsNumber()
     @IsNotEmpty()
