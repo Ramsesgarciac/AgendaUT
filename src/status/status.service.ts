@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Status } from './entities/status.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class StatusService {
-  create(createStatusDto: CreateStatusDto) {
-    return 'This action adds a new status';
+  constructor(
+    @InjectRepository(Status)
+    private readonly statusRepository: Repository<Status>,
+  ){}
+
+  async create(createStatusDto: CreateStatusDto): Promise<Status> {
+    const status = this.statusRepository.create({
+      nombre:createStatusDto.nombre
+    })
+    return this.statusRepository.save(status)
   }
 
-  findAll() {
-    return `This action returns all status`;
+  async findAll():Promise<Status[]> {
+    return this.statusRepository.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} status`;
+  async findOne(id: number): Promise<Status> {
+    const status = await this.statusRepository.findOne({
+      where: {id},
+    });
+
+    if(!status){
+      throw new NotFoundException(`Actividad con ID ${id} no encontrada`);
+    }
+
+    return status;
   }
 
-  update(id: number, updateStatusDto: UpdateStatusDto) {
-    return `This action updates a #${id} status`;
+  async update(id: number, updateStatusDto: UpdateStatusDto): Promise<Status> {
+    const status = await this.findOne(id);
+
+    Object.assign(status, {
+      nombre: updateStatusDto.nombre || status.nombre
+    })
+
+    return this.statusRepository.save(status);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} status`;
+  async remove(id: number): Promise<void> {
+    const status = await this.findOne(id);
+    await this.statusRepository.remove(status);
   }
 }
