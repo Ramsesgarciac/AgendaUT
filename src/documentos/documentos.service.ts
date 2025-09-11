@@ -34,6 +34,7 @@ export class DocumentosService {
         id: true,
         nombre: true,
         tipoDoc: true,
+        // archivo: true,
         actividad: {
           id: true,
           asunto: true,

@@ -13,16 +13,16 @@ export class ActividadesService {
   ) {}
 
   async create(createActividadesDto: CreateActividadeDto): Promise<Actividades> {
-  const actividad = this.actividadesRepository.create({
-    asunto: createActividadesDto.asunto,
-    instanciaReceptora: createActividadesDto.instanciaReceptora,
-    instanciaEmisora: createActividadesDto.instanciaEmisora,
-    tipoActividad: createActividadesDto.tipoActividad,
-    fechaLimite: new Date(createActividadesDto.fechaLimite), // Convertir aquí
-    area: { id: createActividadesDto.idArea },
-    userCreate: { id: createActividadesDto.idUserCreate },
-    status: { id: createActividadesDto.statusId },
-  });
+    const actividad = this.actividadesRepository.create({
+      asunto: createActividadesDto.asunto,
+      instanciaReceptora: createActividadesDto.instanciaReceptora,
+      instanciaEmisora: createActividadesDto.instanciaEmisora,
+      tipoActividad: createActividadesDto.tipoActividad,
+      fechaLimite: new Date(createActividadesDto.fechaLimite), // Convertir aquí
+      area: { id: createActividadesDto.idArea },
+      userCreate: { id: createActividadesDto.idUserCreate },
+      status: { id: createActividadesDto.statusId },
+    });
 
   return this.actividadesRepository.save(actividad);
 }

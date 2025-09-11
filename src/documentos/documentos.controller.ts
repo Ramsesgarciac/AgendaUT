@@ -12,6 +12,7 @@ import {
   Res,
   Query,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
@@ -105,4 +106,30 @@ export class DocumentosController {
     
     return mimeTypes[tipoDoc.toLowerCase()] || 'application/octet-stream';
   }
+
+  @Get(':id/ver')
+async verArchivo(@Param('id') id: number, @Res() res: Response) {
+  try {
+    const buffer = await this.documentosService.getFileBuffer(id);
+    const documento = await this.documentosService.findOne(id);
+
+    if (!buffer) {
+      throw new NotFoundException('Archivo no encontrado');
+    }
+
+    // Determinar el Content-Type basado en la extensión
+    let contentType = 'application/octet-stream';
+    if (documento.tipoDoc.toLowerCase() === 'pdf') {
+      contentType = 'application/pdf';
+    } else if (documento.tipoDoc.toLowerCase().includes('image')) {
+      contentType = `image/${documento.tipoDoc.split('/').pop()}`;
+    }
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
+  } catch (error) {
+    throw new NotFoundException('Archivo no encontrado');
+  }
+}
 }

@@ -7,6 +7,8 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Usuario } from '../../usuario/entities/usuario.entity';
 import { Area } from '../../area/entities/area.entity';
@@ -37,6 +39,17 @@ export class Notas {
   area: Area;
 
   // Relación 1:N con TipoActividad
-  @OneToMany(() => TipoActividad, (tipoActividad) => tipoActividad.nota)
-tiposActividad: TipoActividad[];
+  @ManyToMany(() => TipoActividad, (tipoActividad) => tipoActividad.notas)
+  @JoinTable({
+    name: 'notas_tipo_actividades', // nombre de la tabla de unión
+    joinColumn: {
+      name: 'nota_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'tipo_actividad_id',
+      referencedColumnName: 'id',
+    },
+  })
+  tiposActividad: TipoActividad[];
 }
