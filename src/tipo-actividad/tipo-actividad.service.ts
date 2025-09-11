@@ -1,26 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTipoActividadDto } from './dto/create-tipo-actividad.dto';
 import { UpdateTipoActividadDto } from './dto/update-tipo-actividad.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TipoActividad } from './entities/tipo-actividad.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TipoActividadService {
-  create(createTipoActividadDto: CreateTipoActividadDto) {
-    return 'This action adds a new tipoActividad';
+  constructor(
+    @InjectRepository(TipoActividad)
+    private readonly tipoActividadRepository: Repository<TipoActividad>,
+  ){}
+  async create(createTipoActividadDto: CreateTipoActividadDto): Promise<TipoActividad> {
+    const tipoact = this.tipoActividadRepository.create({
+      nombre: createTipoActividadDto.nombre,
+    })
+    return this.tipoActividadRepository.save(tipoact);
   }
 
-  findAll() {
-    return `This action returns all tipoActividad`;
+  async findAll():Promise <TipoActividad[]> {
+    return this.tipoActividadRepository.find({
+      relations: ['nota']
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tipoActividad`;
+  async findOne(id: number):Promise<TipoActividad> {
+    const tipoAct = await this.tipoActividadRepository.findOne({
+      where: {id},
+      relations: ['nota']
+    })
+
+    if (!tipoAct) {
+          throw new NotFoundException(`Actividad con ID ${id} no encontrada`);
+        }
+    
+    return tipoAct;
   }
 
-  update(id: number, updateTipoActividadDto: UpdateTipoActividadDto) {
-    return `This action updates a #${id} tipoActividad`;
+  async update(id: number, updateTipoActividadDto: UpdateTipoActividadDto): Promise<TipoActividad> {
+    const tipoAct = await this.findOne(id);
+
+    Object.assign(tipoAct, {
+      nombre: updateTipoActividadDto.nombre || tipoAct.nombre
+    })
+    return this.tipoActividadRepository.save(tipoAct);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tipoActividad`;
+  async remove(id: number): Promise<void> {
+    const tipoAct = await this.findOne(id);
+    await this.tipoActividadRepository.remove(tipoAct)
   }
 }
