@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { Actividades } from '../../actividades/entities/actividade.entity';
 
@@ -16,6 +17,6 @@ export class Status {
   nombre: string;
 
   // Relación 1:1 con Actividades
-  @OneToOne(() => Actividades, (actividad) => actividad.status)
-  actividad: Actividades;
+  @OneToMany(() => Actividades, (actividad) => actividad.status)
+  actividades: Actividades[]; 
 }

@@ -6,6 +6,8 @@ import {
   OneToOne,
   OneToMany,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Area } from '../../area/entities/area.entity';
 import { Actividades } from '../../actividades/entities/actividade.entity';
@@ -30,8 +32,19 @@ export class Usuario {
   fechaCreacion: Date;
 
   // Relación 1:1 con Area
-  @OneToOne(() => Area, (area) => area.usuario)
-  area: Area;
+  @ManyToMany(() => Area, (area) => area.usuarios)
+  @JoinTable({
+    name: 'usuario_areas', // nombre de la tabla intermedia
+    joinColumn: {
+      name: 'usuarioId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'areaId',
+      referencedColumnName: 'id',
+    },
+  })
+  areas: Area[];
 
   // Relación 1:N con Actividades (como creador)
   @OneToMany(() => Actividades, (actividad) => actividad.userCreate)

@@ -34,14 +34,14 @@ export class UsuarioService {
 
   async findAll(): Promise<Usuario[]> {
     return this.usuarioRepository.find({
-      relations: ['area', 'actividadesCreadas', 'notas', 'comentarios'],
+      relations: ['areas', 'actividadesCreadas', 'notas', 'comentarios'],
     });
   }
 
   async findOne(id: number): Promise<Usuario> {
     const usuario = await this.usuarioRepository.findOne({
       where: { id },
-      relations: ['area', 'actividadesCreadas', 'notas', 'comentarios'],
+      relations: ['areas', 'actividadesCreadas', 'notas', 'comentarios'],
     });
 
     if (!usuario) {

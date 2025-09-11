@@ -5,6 +5,7 @@ import {
   OneToOne,
   OneToMany,
   JoinColumn,
+  ManyToMany,
 } from 'typeorm';
 import { Usuario } from '../../usuario/entities/usuario.entity';
 import { Actividades } from '../../actividades/entities/actividade.entity';
@@ -19,9 +20,8 @@ export class Area {
   nombre: string;
 
   // Relación 1:1 con Usuario
-  @OneToOne(() => Usuario, (usuario) => usuario.area)
-  @JoinColumn()
-  usuario: Usuario;
+  @ManyToMany(() => Usuario, (usuario) => usuario.areas)
+  usuarios: Usuario[];
 
   // Relación 1:N con Actividades
   @OneToMany(() => Actividades, (actividad) => actividad.area)

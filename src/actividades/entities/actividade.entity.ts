@@ -48,8 +48,8 @@ export class Actividades {
   userCreate: Usuario;
 
   // Relación 1:1 con Status
-  @OneToOne(() => Status, (status) => status.actividad)
-  @JoinColumn()
+  @ManyToOne(() => Status, (status) => status.actividades) // Nota el plural
+  @JoinColumn({ name: 'statusId' })
   status: Status;
 
   // Relación 1:N con Documentos
