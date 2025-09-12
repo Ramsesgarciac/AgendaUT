@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, Length, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsNumber, IsArray, ValidateNested, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateDocumentoDto {
     @IsString()
@@ -9,11 +10,21 @@ export class CreateDocumentoDto {
     @IsString()
     @IsNotEmpty()
     @Length(1, 50)
-    tipoDoc: string;
+    tipoDoc: string; // Ahora representa el tipo de documento (ej: "Oficio", "Memorándum", "Reporte")
 
     @IsNumber()
     @IsNotEmpty()
     idActividades: number;
 }
 
+// Nuevo DTO para manejar múltiples documentos
+export class CreateDocumentosArrayDto {
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateDocumentoDto)
+    documentos: CreateDocumentoDto[];
 
+    // Campo opcional para cuando se envían archivos múltiples
+    @IsOptional()
+    archivos?: Express.Multer.File[];
+}
