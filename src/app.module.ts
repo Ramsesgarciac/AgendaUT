@@ -11,6 +11,7 @@ import { DocumentosModule } from './documentos/documentos.module';
 import { ComentariosModule } from './comentarios/comentarios.module';
 import { NotasModule } from './notas/notas.module';
 import { join } from 'path';
+import { ColeccionComentarioModule } from './coleccion-comentario/coleccion-comentario.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { join } from 'path';
       "database": "agendaut",
       "entities":[join(__dirname, '**', '*.entity.{ts,js}')],
       "synchronize": true,
-    })
+    }),
+    ColeccionComentarioModule
   ],
   controllers: [AppController],
   providers: [AppService],
