@@ -1,12 +1,8 @@
 // src/coleccion-comentarios/dto/create-coleccion-comentario.dto.ts
-import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateColeccionComentarioDto {
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  nombre: string;
-
-  @IsString()
-  @IsOptional()
-  descripcion?: string;
+  idActividad: number;
 }

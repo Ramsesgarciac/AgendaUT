@@ -13,6 +13,7 @@ import { Area } from '../../area/entities/area.entity';
 import { Status } from '../../status/entities/status.entity';
 import { Documentos } from '../../documentos/entities/documento.entity';
 import { Comentarios } from '../../comentarios/entities/comentario.entity';
+import { ColeccionComentarios } from 'src/coleccion-comentario/entities/coleccion-comentario.entity';
 
 @Entity('actividades')
 export class Actividades {
@@ -59,4 +60,7 @@ export class Actividades {
   // Relación 1:N con Comentarios
   @OneToMany(() => Comentarios, (comentario) => comentario.actividad)
   comentarios: Comentarios[];
+
+  @OneToMany(() => ColeccionComentarios, (coleccion) => coleccion.actividad)
+  coleccionComentarios: ColeccionComentarios[];
 }
