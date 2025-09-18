@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm'; 
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsuarioModule } from './usuario/usuario.module';
@@ -12,23 +12,45 @@ import { ComentariosModule } from './comentarios/comentarios.module';
 import { NotasModule } from './notas/notas.module';
 import { join } from 'path';
 import { ColeccionComentarioModule } from './coleccion-comentario/coleccion-comentario.module';
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    UsuarioModule, AreaModule, TipoActividadModule, StatusModule, ActividadesModule, DocumentosModule, ComentariosModule, NotasModule,
-    TypeOrmModule.forRoot({
-      "type":"mysql",
-      "host":"localhost",
-      "port": 3306,
-      "username":"root",
-      "password": "CercaTrova4",
-      "database": "agendaut",
-      "entities":[join(__dirname, '**', '*.entity.{ts,js}')],
-      "synchronize": true,
+    ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+      isGlobal: true
     }),
-    ColeccionComentarioModule
+    UsuarioModule,
+    AreaModule,
+    TipoActividadModule,
+    StatusModule,
+    ActividadesModule,
+    DocumentosModule,
+    ComentariosModule,
+    NotasModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule], // Asegúrate de importar ConfigModule
+      useFactory: (configService: ConfigService) => ({
+        type: "mysql",
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_DATABASE'),
+        entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+        synchronize: true,
+      }),
+      inject: [ConfigService], // Esta línea es crucial - especifica las dependencias
+    }),
+    ColeccionComentarioModule,
+    AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, 
+      {provide: APP_GUARD, useClass: JwtAuthGuard,}
+    ],
 })
 export class AppModule {}

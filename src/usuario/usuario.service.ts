@@ -1,3 +1,4 @@
+// src/usuario/usuario.service.ts
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,6 +6,7 @@ import { Usuario } from './entities/usuario.entity';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import * as bcrypt from 'bcryptjs';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -13,7 +15,7 @@ export class UsuarioService {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
+  async create(createUsuarioDto: RegisterDto): Promise<Usuario> {
     const existingUser = await this.usuarioRepository.findOne({
       where: { email: createUsuarioDto.email }
     });
@@ -23,7 +25,7 @@ export class UsuarioService {
     }
 
     const hashedPassword = await bcrypt.hash(createUsuarioDto.contraseña, 10);
-    
+        
     const usuario = this.usuarioRepository.create({
       ...createUsuarioDto,
       contraseña: hashedPassword,
@@ -46,6 +48,20 @@ export class UsuarioService {
 
     if (!usuario) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    return usuario;
+  }
+
+  // Nuevo método para buscar por email (necesario para la autenticación)
+  async findByEmail(email: string): Promise<Usuario> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { email },
+      relations: ['areas', 'actividadesCreadas', 'notas', 'comentarios'],
+    });
+
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con email ${email} no encontrado`);
     }
 
     return usuario;
