@@ -10,7 +10,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     canActivate(context: ExecutionContext) {
-        // Verificar si la ruta está marcada como pública
+        // Verificar si la ruta está marcada como pública osea ruta libre
         const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
             context.getHandler(),
             context.getClass(),
@@ -18,11 +18,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
         if (isPublic) {
             console.log('Ruta pública, permitiendo acceso');
-            return true;
+            return true; //pasa sin el jwtt
         }
 
         console.log('Ruta protegida, validando JWT');
-        return super.canActivate(context);
+        return super.canActivate(context); //si no es publica se verifica el jwt
     }
 
     handleRequest(err: any, user: any, info: any, context: ExecutionContext) {

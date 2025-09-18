@@ -1,7 +1,7 @@
-// src/auth/interfaces/jwt-payload.interface.ts
+// Indica que datos debera llevar el jwt
 export interface JwtPayload {
     sub: number; // user id
-    email: string;
+    email: string; 
     rol: string;
     iat?: number;
     exp?: number;
