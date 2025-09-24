@@ -14,6 +14,8 @@ export class ActividadesService {
     private readonly actividadesRepository: Repository<Actividades>,
     @InjectRepository(ColeccionComentarios)
     private readonly coleccionComentariosRepository: Repository<ColeccionComentarios>,
+    // Comentamos temporalmente NotificationService hasta que lo implementes completamente
+    // private readonly notificationService: NotificationService,
   ) {}
 
   async create(createActividadesDto: CreateActividadeDto): Promise<Actividades> {
@@ -58,6 +60,11 @@ export class ActividadesService {
   }
 
   async findOne(id: number): Promise<Actividades> {
+    // Validación adicional
+    if (!id || isNaN(id) || id <= 0) {
+      throw new NotFoundException(`ID de actividad inválido: ${id}`);
+    }
+
     const actividad = await this.actividadesRepository.findOne({
       where: { id },
       relations: ['area', 'userCreate', 'status', 'documentos', 'comentarios', 'coleccionComentarios'],
@@ -71,8 +78,14 @@ export class ActividadesService {
   }
 
   async update(id: number, updateActividadesDto: UpdateActividadeDto): Promise<Actividades> {
+    // Validación adicional
+    if (!id || isNaN(id) || id <= 0) {
+      throw new NotFoundException(`ID de actividad inválido: ${id}`);
+    }
+
     const actividad = await this.findOne(id);
 
+    // Actualizar relaciones si se proporcionan
     if (updateActividadesDto.idArea) {
       actividad.area = { id: updateActividadesDto.idArea } as any;
     }
@@ -81,18 +94,24 @@ export class ActividadesService {
       actividad.status = { id: updateActividadesDto.statusId } as any;
     }
 
+    // Actualizar propiedades básicas
     Object.assign(actividad, {
       asunto: updateActividadesDto.asunto || actividad.asunto,
       instanciaReceptora: updateActividadesDto.instanciaReceptora || actividad.instanciaReceptora,
       instanciaEmisora: updateActividadesDto.instanciaEmisora || actividad.instanciaEmisora,
       tipoActividad: updateActividadesDto.tipoActividad || actividad.tipoActividad,
-      fechaLimite: updateActividadesDto.fechaLimite || actividad.fechaLimite,
+      fechaLimite: updateActividadesDto.fechaLimite ? new Date(updateActividadesDto.fechaLimite) : actividad.fechaLimite,
     });
 
     return this.actividadesRepository.save(actividad);
   }
 
   async remove(id: number): Promise<void> {
+    // Validación adicional
+    if (!id || isNaN(id) || id <= 0) {
+      throw new NotFoundException(`ID de actividad inválido: ${id}`);
+    }
+
     const actividad = await this.findOne(id);
     
     // Opcional: Eliminar colecciones de comentarios asociadas automáticamente
@@ -108,6 +127,11 @@ export class ActividadesService {
   }
 
   async findByArea(areaId: number): Promise<Actividades[]> {
+    // Validación adicional
+    if (!areaId || isNaN(areaId) || areaId <= 0) {
+      throw new NotFoundException(`ID de área inválido: ${areaId}`);
+    }
+
     return this.actividadesRepository.find({
       where: { area: { id: areaId } },
       relations: ['area', 'userCreate', 'status', 'documentos', 'comentarios', 'coleccionComentarios'],
@@ -115,6 +139,11 @@ export class ActividadesService {
   }
 
   async findByUser(userId: number): Promise<Actividades[]> {
+    // Validación adicional
+    if (!userId || isNaN(userId) || userId <= 0) {
+      throw new NotFoundException(`ID de usuario inválido: ${userId}`);
+    }
+
     return this.actividadesRepository.find({
       where: { userCreate: { id: userId } },
       relations: ['area', 'userCreate', 'status', 'documentos', 'comentarios', 'coleccionComentarios'],
@@ -123,6 +152,11 @@ export class ActividadesService {
 
   // Método adicional para crear manualmente una colección de comentarios
   async crearColeccionComentarios(actividadId: number): Promise<ColeccionComentarios> {
+    // Validación adicional
+    if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
+      throw new NotFoundException(`ID de actividad inválido: ${actividadId}`);
+    }
+
     const actividad = await this.findOne(actividadId);
     
     const coleccionComentarios = this.coleccionComentariosRepository.create({
@@ -130,5 +164,26 @@ export class ActividadesService {
     });
     
     return await this.coleccionComentariosRepository.save(coleccionComentarios);
+  }
+
+  // Método temporal para recordatorios (lo activaremos cuando implementes NotificationService)
+  async enviarRecordatorioManual(actividadId: number, dias: number): Promise<string> {
+    // Validación adicional
+    if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
+      throw new NotFoundException(`ID de actividad inválido: ${actividadId}`);
+    }
+
+    if (!dias || isNaN(dias) || dias <= 0) {
+      throw new NotFoundException(`Número de días inválido: ${dias}`);
+    }
+
+    // Verificar que la actividad existe
+    await this.findOne(actividadId);
+    
+    // Retornar mensaje temporal hasta que implementes NotificationService
+    return `Recordatorio programado para actividad ID ${actividadId} con ${dias} días de anticipación. Implementación pendiente de NotificationService.`;
+    
+    // Una vez que tengas NotificationService implementado, descomenta esta línea:
+    // return this.notificationService.sendTestReminder(actividadId, dias);
   }
 }
