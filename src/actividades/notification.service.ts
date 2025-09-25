@@ -23,7 +23,7 @@ export class NotificationService {
     
     try {
       await Promise.all([
-        this.sendRemindersForDays(8, 'Recordatorio preventivo'),
+        this.sendRemindersForDays(7, 'Recordatorio preventivo'),
         this.sendRemindersForDays(1, 'Alerta urgente'),
         this.sendRemindersForDays(0, 'Notificación crítica - vence hoy'), // Nueva línea
       ]);

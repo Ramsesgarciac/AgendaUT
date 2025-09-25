@@ -6,6 +6,7 @@ import { Actividades } from './entities/actividade.entity';
 import { CreateActividadeDto } from './dto/create-actividade.dto';
 import { UpdateActividadeDto } from './dto/update-actividade.dto';
 import { ColeccionComentarios } from '../coleccion-comentario/entities/coleccion-comentario.entity';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class ActividadesService {
@@ -14,8 +15,7 @@ export class ActividadesService {
     private readonly actividadesRepository: Repository<Actividades>,
     @InjectRepository(ColeccionComentarios)
     private readonly coleccionComentariosRepository: Repository<ColeccionComentarios>,
-    // Comentamos temporalmente NotificationService hasta que lo implementes completamente
-    // private readonly notificationService: NotificationService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(createActividadesDto: CreateActividadeDto): Promise<Actividades> {
@@ -40,15 +40,18 @@ export class ActividadesService {
         const coleccionComentarios = this.coleccionComentariosRepository.create({
           actividad: { id: actividadGuardada.id }
         });
-        
+
         await this.coleccionComentariosRepository.save(coleccionComentarios);
-        
+
         console.log(`Colección de comentarios creada automáticamente para la actividad ID: ${actividadGuardada.id}`);
       } catch (error) {
         console.error('Error al crear colección de comentarios:', error);
         // No lanzamos el error para que no falle la creación de la actividad
       }
     }
+
+    // Verificar si la actividad requiere notificación inmediata
+    await this.checkAndSendImmediateNotification(actividadGuardada);
 
     return actividadGuardada;
   }
@@ -166,7 +169,32 @@ export class ActividadesService {
     return await this.coleccionComentariosRepository.save(coleccionComentarios);
   }
 
-  // Método temporal para recordatorios (lo activaremos cuando implementes NotificationService)
+  // Método para verificar y enviar notificaciones inmediatas al crear actividad
+  private async checkAndSendImmediateNotification(actividad: Actividades): Promise<void> {
+    try {
+      const ahora = new Date();
+      const fechaLimite = new Date(actividad.fechaLimite);
+      const diferenciaMs = fechaLimite.getTime() - ahora.getTime();
+      const diferenciaDias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+
+      // Si la actividad vence hoy (0 días) o mañana (1 día), enviar notificación inmediata
+      if (diferenciaDias >= 0 && diferenciaDias <= 1) {
+        console.log(`📢 Actividad creada con deadline cercano (${diferenciaDias} días). Enviando notificación inmediata...`);
+
+        // Obtener la actividad completa con relaciones para enviar notificación
+        const actividadCompleta = await this.findOne(actividad.id);
+
+        // Enviar notificación inmediata usando el servicio de notificaciones
+        await this.notificationService.sendTestReminder(actividad.id, diferenciaDias);
+
+        console.log(`✅ Notificación inmediata enviada para actividad "${actividad.asunto}" (ID: ${actividad.id})`);
+      }
+    } catch (error) {
+      console.error('❌ Error enviando notificación inmediata:', error);
+      // No lanzamos el error para que no falle la creación de la actividad
+    }
+  }
+
   async enviarRecordatorioManual(actividadId: number, dias: number): Promise<string> {
     // Validación adicional
     if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
@@ -179,11 +207,9 @@ export class ActividadesService {
 
     // Verificar que la actividad existe
     await this.findOne(actividadId);
-    
-    // Retornar mensaje temporal hasta que implementes NotificationService
-    return `Recordatorio programado para actividad ID ${actividadId} con ${dias} días de anticipación. Implementación pendiente de NotificationService.`;
-    
-    // Una vez que tengas NotificationService implementado, descomenta esta línea:
-    // return this.notificationService.sendTestReminder(actividadId, dias);
+
+    await this.notificationService.sendTestReminder(actividadId, dias);
+
+    return `Recordatorio enviado para actividad ID ${actividadId} con ${dias} días de anticipación.`;
   }
 }

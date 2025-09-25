@@ -69,7 +69,7 @@ export class ActividadesController {
     return this.actividadesService.crearColeccionComentarios(id);
   }
 
-  // Endpoint de prueba para recordatorios (cuando implementes NotificationService)
+  // Endpoint de prueba para recordatorios
   @Post(':id/test-reminder/:days')
   async testReminder(
     @Param('id', ParseIntPipe) id: number,
@@ -79,11 +79,7 @@ export class ActividadesController {
     if (days < 1 || days > 30) {
       throw new BadRequestException('Los días deben estar entre 1 y 30');
     }
-    
-    // Este endpoint lo implementaremos cuando tengas el NotificationService
-    return { 
-      message: `Test reminder endpoint - ID: ${id}, Days: ${days}`,
-      note: 'Este endpoint se activará cuando implementes el NotificationService'
-    };
+
+    return this.actividadesService.enviarRecordatorioManual(id, days);
   }
 }

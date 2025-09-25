@@ -114,8 +114,8 @@ export class MailService {
   }
 
   private getSubject(diasRestantes: number, asunto: string): string {
-    if (diasRestantes === 8) {
-      return `🔔 Recordatorio: Actividad próxima a vencer en 8 días - ${asunto}`;
+    if (diasRestantes === 7) {
+      return `🔔 Recordatorio: Actividad próxima a vencer en 7 días - ${asunto}`;
     } else if (diasRestantes === 1) {
       return `🚨 URGENTE: Actividad vence mañana - ${asunto}`;
     }
