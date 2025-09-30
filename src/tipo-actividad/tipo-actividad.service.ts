@@ -20,14 +20,14 @@ export class TipoActividadService {
 
   async findAll():Promise <TipoActividad[]> {
     return this.tipoActividadRepository.find({
-      relations: ['nota']
+      relations: ['notas']
     });
   }
 
   async findOne(id: number):Promise<TipoActividad> {
     const tipoAct = await this.tipoActividadRepository.findOne({
       where: {id},
-      relations: ['nota']
+      relations: ['notas']
     })
 
     if (!tipoAct) {
