@@ -31,6 +31,10 @@ export class CreateActividadeDto {
   @Length(1, 50)
   tipoActividad: string;
 
+  @IsString()
+  @IsNotEmpty()
+  descripcion: string;
+
   @IsISO8601()
   fechaLimite: string;
 

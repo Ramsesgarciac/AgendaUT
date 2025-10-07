@@ -25,6 +25,7 @@ export class ActividadesService {
       instanciaReceptora: createActividadesDto.instanciaReceptora,
       instanciaEmisora: createActividadesDto.instanciaEmisora,
       tipoActividad: createActividadesDto.tipoActividad,
+      descripcion: createActividadesDto.descripcion,
       fechaLimite: new Date(createActividadesDto.fechaLimite),
       area: { id: createActividadesDto.idArea },
       userCreate: { id: createActividadesDto.idUserCreate },
@@ -103,6 +104,7 @@ export class ActividadesService {
       instanciaReceptora: updateActividadesDto.instanciaReceptora || actividad.instanciaReceptora,
       instanciaEmisora: updateActividadesDto.instanciaEmisora || actividad.instanciaEmisora,
       tipoActividad: updateActividadesDto.tipoActividad || actividad.tipoActividad,
+      descripcion: updateActividadesDto.descripcion !== undefined ? updateActividadesDto.descripcion : actividad.descripcion,
       fechaLimite: updateActividadesDto.fechaLimite ? new Date(updateActividadesDto.fechaLimite) : actividad.fechaLimite,
     });
 

@@ -32,6 +32,9 @@ export class Actividades {
   @Column({ type: 'varchar', length: 50 })
   tipoActividad: string;
 
+  @Column({ type: 'text' })
+  descripcion: string;
+
   @Column({ type: 'timestamp' })
   fechaLimite: Date;
 
