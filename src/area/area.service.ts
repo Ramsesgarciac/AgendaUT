@@ -4,6 +4,7 @@ import { UpdateAreaDto } from './dto/update-area.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Area } from './entities/area.entity';
 import { Usuario } from '../usuario/entities/usuario.entity';
+import { TipoArea } from '../tipo-area/entities/tipo-area.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,7 +13,9 @@ export class AreaService {
     @InjectRepository(Area)
     private readonly areaRepository: Repository<Area>,
     @InjectRepository(Usuario)
-    private readonly usuarioRepository: Repository<Usuario>
+    private readonly usuarioRepository: Repository<Usuario>,
+    @InjectRepository(TipoArea)
+    private readonly tipoAreaRepository: Repository<TipoArea>
   ){}
 
   async create(createAreaDto: CreateAreaDto): Promise<Area> {
@@ -21,16 +24,29 @@ export class AreaService {
       nombre: createAreaDto.nombre,
     });
 
+    // Si se proporciona un tipoAreaId, buscar el tipoArea y asignarlo
+    if (createAreaDto.tipoAreaId) {
+      const tipoArea = await this.tipoAreaRepository.findOne({
+        where: { id: createAreaDto.tipoAreaId }
+      });
+
+      if (!tipoArea) {
+        throw new NotFoundException(`TipoArea con ID ${createAreaDto.tipoAreaId} no encontrado`);
+      }
+
+      area.tipoArea = tipoArea;
+    }
+
     // Si se proporciona un usuarioId, buscar el usuario y asignarlo
     if (createAreaDto.usuarioId) {
       const usuario = await this.usuarioRepository.findOne({
         where: { id: createAreaDto.usuarioId }
       });
-      
+
       if (!usuario) {
         throw new NotFoundException(`Usuario con ID ${createAreaDto.usuarioId} no encontrado`);
       }
-      
+
       area.usuarios = [usuario]; // ManyToMany requiere array
     }
 
@@ -39,14 +55,14 @@ export class AreaService {
 
   async findAll(): Promise<Area[]> {
     return this.areaRepository.find({
-      relations: ['usuarios', 'actividades', 'notas'] // Cambiar 'usuario' por 'usuarios'
+      relations: ['usuarios', 'actividades', 'notas', 'tipoArea'] // Cambiar 'usuario' por 'usuarios'
     });
   }
 
   async findOne(id: number): Promise<Area> {
     const area = await this.areaRepository.findOne({
       where: { id },
-      relations: ['usuarios', 'actividades', 'notas'] // Cambiar 'usuario' por 'usuarios'
+      relations: ['usuarios', 'actividades', 'notas', 'tipoArea'] // Cambiar 'usuario' por 'usuarios'
     });
 
     if (!area) {
@@ -58,10 +74,23 @@ export class AreaService {
 
   async update(id: number, updateAreaDto: UpdateAreaDto): Promise<Area> {
     const area = await this.findOne(id);
-    
+
     // Actualizar nombre si se proporciona
     if (updateAreaDto.nombre) {
       area.nombre = updateAreaDto.nombre;
+    }
+
+    // Si se proporciona un nuevo tipoAreaId
+    if (updateAreaDto.tipoAreaId) {
+      const tipoArea = await this.tipoAreaRepository.findOne({
+        where: { id: updateAreaDto.tipoAreaId }
+      });
+
+      if (!tipoArea) {
+        throw new NotFoundException(`TipoArea con ID ${updateAreaDto.tipoAreaId} no encontrado`);
+      }
+
+      area.tipoArea = tipoArea;
     }
 
     // Si se proporciona un nuevo usuarioId
@@ -69,11 +98,11 @@ export class AreaService {
       const usuario = await this.usuarioRepository.findOne({
         where: { id: updateAreaDto.usuarioId }
       });
-      
+
       if (!usuario) {
         throw new NotFoundException(`Usuario con ID ${updateAreaDto.usuarioId} no encontrado`);
       }
-      
+
       // Reemplazar la lista de usuarios (o puedes agregar a la lista existente)
       area.usuarios = [usuario];
     }

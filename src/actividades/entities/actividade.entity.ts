@@ -13,7 +13,7 @@ import { Area } from '../../area/entities/area.entity';
 import { Status } from '../../status/entities/status.entity';
 import { Documentos } from '../../documentos/entities/documento.entity';
 import { Comentarios } from '../../comentarios/entities/comentario.entity';
-import { ColeccionComentarios } from 'src/coleccion-comentario/entities/coleccion-comentario.entity';
+import { ColeccionComentarios } from '../../coleccion-comentario/entities/coleccion-comentario.entity';
 
 @Entity('actividades')
 export class Actividades {

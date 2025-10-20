@@ -1,7 +1,7 @@
 // src/coleccion-comentarios/entities/coleccion-comentario.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Comentarios } from '../../comentarios/entities/comentario.entity';
-import { Actividades } from 'src/actividades/entities/actividade.entity';
+import { Actividades } from '../../actividades/entities/actividade.entity';
 
 @Entity('colecciones_comentarios')
 export class ColeccionComentarios {

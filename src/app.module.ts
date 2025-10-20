@@ -18,6 +18,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
+import { TipoAreaModule } from './tipo-area/tipo-area.module';
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import { MailModule } from './mail/mail.module';
       inject: [ConfigService], // Esta línea es crucial - especifica las dependencias
     }),
     ColeccionComentarioModule,
-    AuthModule
+    AuthModule,
+    TipoAreaModule
   ],
   controllers: [AppController],
   providers: [AppService, 

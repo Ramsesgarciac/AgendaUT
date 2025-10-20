@@ -9,4 +9,8 @@ export class CreateAreaDto {
     @IsNumber()
     @IsOptional()
     usuarioId?: number;
+
+    @IsNumber()
+    @IsOptional()
+    tipoAreaId?: number;
 }

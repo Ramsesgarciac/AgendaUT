@@ -6,10 +6,12 @@ import {
   OneToMany,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Usuario } from '../../usuario/entities/usuario.entity';
 import { Actividades } from '../../actividades/entities/actividade.entity';
 import { Notas } from '../../notas/entities/nota.entity';
+import { TipoArea } from '../../tipo-area/entities/tipo-area.entity';
 
 @Entity('areas')
 export class Area {
@@ -18,6 +20,10 @@ export class Area {
 
   @Column({ type: 'varchar', length: 100 })
   nombre: string;
+
+  // Relación N:1 con TipoArea
+  @ManyToOne(() => TipoArea, (tipoArea) => tipoArea.areas)
+  tipoArea: TipoArea;
 
   // Relación 1:1 con Usuario
   @ManyToMany(() => Usuario, (usuario) => usuario.areas)

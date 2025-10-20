@@ -3,7 +3,7 @@ import { ColeccionComentariosService } from './coleccion-comentario.service';
 import { ColeccionComentariosController } from './coleccion-comentario.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ColeccionComentarios } from './entities/coleccion-comentario.entity';
-import { Comentarios } from 'src/comentarios/entities/comentario.entity';
+import { Comentarios } from '../comentarios/entities/comentario.entity';
 
 @Module({
   imports: [
