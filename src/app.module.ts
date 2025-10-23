@@ -19,6 +19,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
 import { TipoAreaModule } from './tipo-area/tipo-area.module';
+import { JefaturaModule } from './jefatura/jefatura.module';
 
 @Module({
   imports: [
@@ -54,7 +55,8 @@ import { TipoAreaModule } from './tipo-area/tipo-area.module';
     }),
     ColeccionComentarioModule,
     AuthModule,
-    TipoAreaModule
+    TipoAreaModule,
+    JefaturaModule
   ],
   controllers: [AppController],
   providers: [AppService, 

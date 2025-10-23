@@ -12,6 +12,7 @@ import { Usuario } from '../../usuario/entities/usuario.entity';
 import { Actividades } from '../../actividades/entities/actividade.entity';
 import { Notas } from '../../notas/entities/nota.entity';
 import { TipoArea } from '../../tipo-area/entities/tipo-area.entity';
+import { Jefatura } from '../../jefatura/entities/jefatura.entity';
 
 @Entity('areas')
 export class Area {
@@ -36,4 +37,8 @@ export class Area {
   // Relación 1:N con Notas
   @OneToMany(() => Notas, (nota) => nota.area)
   notas: Notas[];
+
+  // Relación 1:N con Jefatura
+  @OneToMany(() => Jefatura, (jefatura) => jefatura.area)
+  jefaturas: Jefatura[];
 }
