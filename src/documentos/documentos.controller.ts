@@ -39,32 +39,70 @@ export class DocumentosController {
   @Post('multiple')
   @UseInterceptors(FilesInterceptor('archivos', 10)) // Máximo 10 archivos
   createMultiple(
-    @Body('documentos') documentosData: string | CreateDocumentoDto[],
+    @Body() body: { documentos: string },
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    // Si viene como string (desde form-data), parsearlo
-    let parsedDocumentos: CreateDocumentoDto[];
-    if (typeof documentosData === 'string') {
-      try {
-        parsedDocumentos = JSON.parse(documentosData);
-      } catch (error) {
-        throw new Error('El formato de documentos no es válido. Debe ser un JSON array.');
-      }
-    } else {
-      parsedDocumentos = documentosData;
+    let documentos: CreateDocumentoDto[];
+    try {
+      documentos = JSON.parse(body.documentos);
+    } catch (error) {
+      throw new Error('El campo "documentos" debe ser un JSON válido.');
     }
 
-    return this.documentosService.createFromArray(parsedDocumentos, files);
+    if (!documentos || !Array.isArray(documentos)) {
+      throw new Error('El campo "documentos" debe ser un array válido.');
+    }
+
+    return this.documentosService.createFromArray(documentos, files);
+  }
+
+  // Endpoint para crear múltiples documentos con entregaId como parámetro de ruta
+  @Post('multiple/:entregaId')
+  @UseInterceptors(FilesInterceptor('archivos', 10)) // Máximo 10 archivos
+  createMultipleWithEntregaId(
+    @Param('entregaId', ParseIntPipe) entregaId: number,
+    @Body() body: { documentos: string },
+    @UploadedFiles() files?: Express.Multer.File[],
+  ) {
+    let documentos: Omit<CreateDocumentoDto, 'entregaId'>[];
+    try {
+      documentos = JSON.parse(body.documentos);
+    } catch (error) {
+      throw new Error('El campo "documentos" debe ser un JSON válido.');
+    }
+
+    if (!documentos || !Array.isArray(documentos)) {
+      throw new Error('El campo "documentos" debe ser un array válido.');
+    }
+
+    // Agregar entregaId a cada documento
+    const documentosConEntregaId: CreateDocumentoDto[] = documentos.map(doc => ({
+      ...doc,
+      entregaId,
+    }));
+
+    return this.documentosService.createFromArray(documentosConEntregaId, files);
   }
 
   // Endpoint alternativo para crear múltiples documentos desde array directo
   @Post('batch')
   @UseInterceptors(FilesInterceptor('archivos', 10)) // Máximo 10 archivos
   createBatch(
-    @Body('documentos') documentosData: CreateDocumentoDto[],
+    @Body() body: { documentos: string },
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    return this.documentosService.createFromArray(documentosData, files);
+    let documentos: CreateDocumentoDto[];
+    try {
+      documentos = JSON.parse(body.documentos);
+    } catch (error) {
+      throw new Error('El campo "documentos" debe ser un JSON válido.');
+    }
+
+    if (!documentos || !Array.isArray(documentos)) {
+      throw new Error('El campo "documentos" debe ser un array válido.');
+    }
+
+    return this.documentosService.createFromArray(documentos, files);
   }
 
   @Get()

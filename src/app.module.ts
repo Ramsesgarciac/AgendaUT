@@ -20,6 +20,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
 import { TipoAreaModule } from './tipo-area/tipo-area.module';
 import { JefaturaModule } from './jefatura/jefatura.module';
+import { TipoEntregaModule } from './tipo-entrega/tipo-entrega.module';
+import { EntregaModule } from './entrega/entrega.module';
 
 @Module({
   imports: [
@@ -56,7 +58,9 @@ import { JefaturaModule } from './jefatura/jefatura.module';
     ColeccionComentarioModule,
     AuthModule,
     TipoAreaModule,
-    JefaturaModule
+    JefaturaModule,
+    TipoEntregaModule,
+    EntregaModule
   ],
   controllers: [AppController],
   providers: [AppService, 

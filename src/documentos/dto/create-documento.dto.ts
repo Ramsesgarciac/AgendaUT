@@ -15,6 +15,10 @@ export class CreateDocumentoDto {
     @IsNumber()
     @IsNotEmpty()
     idActividades: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    entregaId: number;
 }
 
 // Nuevo DTO para manejar múltiples documentos
