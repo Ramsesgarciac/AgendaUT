@@ -33,6 +33,7 @@ export class DocumentosService {
     const documento = new Documentos();
     documento.nombre = createDocumentosDto.nombre;
     documento.tipoDoc = createDocumentosDto.tipoDoc;
+    documento.isAcuce = createDocumentosDto.isAcuce ?? false;
     documento.actividad = { id: createDocumentosDto.idActividades } as any;
     documento.archivo = file ? file.buffer : null;
 
@@ -62,6 +63,7 @@ export class DocumentosService {
       const documento = new Documentos();
       documento.nombre = dto.nombre;
       documento.tipoDoc = dto.tipoDoc;
+      documento.isAcuce = dto.isAcuce ?? false;
       documento.actividad = { id: dto.idActividades } as any;
       documento.entrega = { id: dto.entregaId } as any;
       documento.archivo = file ? file.buffer : null;
@@ -95,6 +97,7 @@ export class DocumentosService {
       const documento = new Documentos();
       documento.nombre = dto.nombre; // Nombre personalizado, independiente del archivo
       documento.tipoDoc = dto.tipoDoc; // Tipo de documento (ej: "Oficio", "Memorándum")
+      documento.isAcuce = dto.isAcuce ?? false;
       documento.actividad = { id: dto.idActividades } as any;
       documento.entrega = { id: dto.entregaId } as any;
       if (file) {
@@ -178,6 +181,8 @@ export class DocumentosService {
       if (!entrega) {
         throw new NotFoundException(`Entrega con ID ${updateDocumentosDto.entregaId} no encontrada`);
       }
+
+      documento.entrega = { id: updateDocumentosDto.entregaId } as any;
     }
 
     return this.documentosRepository.save(documento);
@@ -214,5 +219,26 @@ export class DocumentosService {
     }
 
     return documento.archivo;
+  }
+
+  async getFileForViewing(id: number): Promise<{ buffer: Buffer; nombre: string; tipoDoc: string }> {
+    const documento = await this.documentosRepository.findOne({
+      where: { id },
+      select: ['id', 'archivo', 'nombre', 'tipoDoc'],
+    });
+
+    if (!documento) {
+      throw new NotFoundException(`Documento con ID ${id} no encontrado`);
+    }
+
+    if (!documento.archivo) {
+      throw new NotFoundException(`Archivo no encontrado para el documento con ID ${id}`);
+    }
+
+    return {
+      buffer: documento.archivo,
+      nombre: documento.nombre,
+      tipoDoc: documento.tipoDoc,
+    };
   }
 }

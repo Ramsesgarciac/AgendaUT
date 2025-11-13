@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsNumber, IsArray, ValidateNested, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsNumber, IsArray, ValidateNested, IsOptional, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDocumentoDto {
@@ -11,6 +11,10 @@ export class CreateDocumentoDto {
     @IsNotEmpty()
     @Length(1, 50)
     tipoDoc: string; // Ahora representa el tipo de documento (ej: "Oficio", "Memorándum", "Reporte")
+
+    @IsBoolean()
+    @IsOptional()
+    isAcuce?: boolean;
 
     @IsNumber()
     @IsNotEmpty()

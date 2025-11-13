@@ -21,6 +21,9 @@ export class Documentos {
   @Column({ type: 'varchar', length: 50 })
   tipoDoc: string;
 
+  @Column({ type: 'boolean', default: false })
+  isAcuce: boolean;
+
   @Column({ type: 'longblob', nullable: true })
   archivo: Buffer | null;
 

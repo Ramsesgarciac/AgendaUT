@@ -148,7 +148,7 @@ export class DocumentosController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('archivo'))
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDocumentosDto: UpdateDocumentoDto,
     @UploadedFile() file?: Express.Multer.File,
@@ -279,28 +279,23 @@ export class DocumentosController {
   @Get(':id/ver')
   async verArchivo(@Param('id') id: number, @Res() res: Response) {
     try {
-      const documento = await this.documentosService.findOne(id);
-      const buffer = await this.documentosService.getFileBuffer(id);
-
-      if (!buffer) {
-        throw new NotFoundException('Archivo no encontrado');
-      }
+      const { buffer, nombre, tipoDoc } = await this.documentosService.getFileForViewing(id);
 
       // Detectar Content-Type desde el archivo real
       let contentType = this.detectMimeTypeFromBuffer(buffer);
-      
+
       // Para documentos de Office, forzar la visualización en el navegador
       // en lugar de la descarga
-      const contentDisposition = this.shouldDisplayInline(contentType) 
-        ? 'inline' 
+      const contentDisposition = this.shouldDisplayInline(contentType)
+        ? 'inline'
         : 'attachment';
-      
-      const filename = `${documento.nombre}.${documento.tipoDoc}`;
+
+      const filename = `${nombre}.${tipoDoc}`;
 
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Length', buffer.length);
       res.setHeader('Content-Disposition', `${contentDisposition}; filename="${filename}"`);
-      
+
       return res.send(buffer);
     } catch (error) {
       if (error instanceof NotFoundException) {
