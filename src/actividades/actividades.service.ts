@@ -7,6 +7,7 @@ import { CreateActividadeDto } from './dto/create-actividade.dto';
 import { UpdateActividadeDto } from './dto/update-actividade.dto';
 import { ColeccionComentarios } from '../coleccion-comentario/entities/coleccion-comentario.entity';
 import { NotificationService } from './notification.service';
+import { StatusService } from '../status/status.service';
 
 @Injectable()
 export class ActividadesService {
@@ -16,6 +17,7 @@ export class ActividadesService {
     @InjectRepository(ColeccionComentarios)
     private readonly coleccionComentariosRepository: Repository<ColeccionComentarios>,
     private readonly notificationService: NotificationService,
+    private readonly statusService: StatusService,
   ) {}
 
   async create(createActividadesDto: CreateActividadeDto): Promise<Actividades> {
@@ -108,6 +110,20 @@ export class ActividadesService {
       fechaLimite: updateActividadesDto.fechaLimite ? new Date(updateActividadesDto.fechaLimite) : actividad.fechaLimite,
     });
 
+    return this.actividadesRepository.save(actividad);
+  }
+
+  async cambiarStatus(actividadId: number, statusId: number): Promise<Actividades> {
+    // Validar que la actividad existe
+    const actividad = await this.findOne(actividadId);
+
+    // Validar que el status existe
+    const status = await this.statusService.findOne(statusId);
+
+    // Cambiar el status de la actividad
+    actividad.status = status;
+
+    // Guardar y retornar la actividad actualizada
     return this.actividadesRepository.save(actividad);
   }
 

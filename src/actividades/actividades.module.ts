@@ -6,11 +6,13 @@ import { Actividades } from './entities/actividade.entity';
 import { ColeccionComentarios } from '../coleccion-comentario/entities/coleccion-comentario.entity';
 import { MailModule } from '../mail/mail.module';
 import { NotificationService } from './notification.service';
+import { StatusModule } from '../status/status.module';
 
 @Module({
   imports: [
       TypeOrmModule.forFeature([Actividades, ColeccionComentarios]), // Esto es crucial
-      forwardRef(() => MailModule)
+      forwardRef(() => MailModule),
+      StatusModule
     ],
   controllers: [ActividadesController],
   providers: [ActividadesService, NotificationService],

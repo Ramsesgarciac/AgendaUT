@@ -52,10 +52,18 @@ export class ActividadesController {
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number, 
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateActividadeDto: UpdateActividadeDto
   ) {
     return this.actividadesService.update(id, updateActividadeDto);
+  }
+
+  @Patch(':id/status/:statusId')
+  cambiarStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('statusId', ParseIntPipe) statusId: number
+  ) {
+    return this.actividadesService.cambiarStatus(id, statusId);
   }
 
   @Delete(':id')
