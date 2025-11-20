@@ -106,9 +106,12 @@ export class DocumentosController {
   }
 
   @Get()
-  findAll(@Query('actividadId') actividadId?: string) {
+  findAll(@Query('actividadId') actividadId?: string, @Query('usuarioId') usuarioId?: string) {
     if (actividadId) {
       return this.documentosService.findByActividad(+actividadId);
+    }
+    if (usuarioId) {
+      return this.documentosService.findByUsuario(+usuarioId);
     }
     return this.documentosService.findAll();
   }

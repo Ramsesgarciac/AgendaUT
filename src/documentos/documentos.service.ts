@@ -6,6 +6,7 @@ import { Documentos } from './entities/documento.entity';
 import { CreateDocumentoDto, CreateDocumentosArrayDto } from './dto/create-documento.dto';
 import { UpdateDocumentoDto } from './dto/update-documento.dto';
 import { Entrega } from '../entrega/entities/entrega/entrega.entity';
+import { Usuario } from '../usuario/entities/usuario.entity';
 
 @Injectable()
 export class DocumentosService {
@@ -14,6 +15,8 @@ export class DocumentosService {
     private readonly documentosRepository: Repository<Documentos>,
     @InjectRepository(Entrega)
     private readonly entregaRepository: Repository<Entrega>,
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
   // Método original para crear un solo documento
@@ -30,11 +33,22 @@ export class DocumentosService {
       throw new NotFoundException(`Entrega con ID ${createDocumentosDto.entregaId} no encontrada`);
     }
 
+    // Validar que el usuario existe
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id: createDocumentosDto.usuarioId }
+    });
+
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID ${createDocumentosDto.usuarioId} no encontrado`);
+    }
+
     const documento = new Documentos();
     documento.nombre = createDocumentosDto.nombre;
     documento.tipoDoc = createDocumentosDto.tipoDoc;
     documento.isAcuce = createDocumentosDto.isAcuce ?? false;
     documento.actividad = { id: createDocumentosDto.idActividades } as any;
+    documento.entrega = { id: createDocumentosDto.entregaId } as any;
+    documento.usuario = { id: createDocumentosDto.usuarioId } as any;
     documento.archivo = file ? file.buffer : null;
 
     return this.documentosRepository.save(documento);
@@ -60,12 +74,22 @@ export class DocumentosService {
         throw new NotFoundException(`Entrega con ID ${dto.entregaId} no encontrada`);
       }
 
+      // Validar que el usuario existe
+      const usuario = await this.usuarioRepository.findOne({
+        where: { id: dto.usuarioId }
+      });
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID ${dto.usuarioId} no encontrado`);
+      }
+
       const documento = new Documentos();
       documento.nombre = dto.nombre;
       documento.tipoDoc = dto.tipoDoc;
       documento.isAcuce = dto.isAcuce ?? false;
       documento.actividad = { id: dto.idActividades } as any;
       documento.entrega = { id: dto.entregaId } as any;
+      documento.usuario = { id: dto.usuarioId } as any;
       documento.archivo = file ? file.buffer : null;
 
       documentos.push(documento);
@@ -94,12 +118,22 @@ export class DocumentosService {
         throw new NotFoundException(`Entrega con ID ${dto.entregaId} no encontrada`);
       }
 
+      // Validar que el usuario existe
+      const usuario = await this.usuarioRepository.findOne({
+        where: { id: dto.usuarioId }
+      });
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID ${dto.usuarioId} no encontrado`);
+      }
+
       const documento = new Documentos();
       documento.nombre = dto.nombre; // Nombre personalizado, independiente del archivo
       documento.tipoDoc = dto.tipoDoc; // Tipo de documento (ej: "Oficio", "Memorándum")
       documento.isAcuce = dto.isAcuce ?? false;
       documento.actividad = { id: dto.idActividades } as any;
       documento.entrega = { id: dto.entregaId } as any;
+      documento.usuario = { id: dto.usuarioId } as any;
       if (file) {
         documento.archivo = file.buffer;
       }
@@ -154,6 +188,22 @@ export class DocumentosService {
     });
   }
 
+  async findByUsuario(usuarioId: number): Promise<Documentos[]> {
+    return this.documentosRepository.find({
+      where: { usuario: { id: usuarioId } },
+      relations: ['usuario'],
+      select: {
+        id: true,
+        nombre: true,
+        tipoDoc: true,
+        usuario: {
+          id: true,
+          email: true,
+        },
+      },
+    });
+  }
+
   async update(
     id: number,
     updateDocumentosDto: UpdateDocumentoDto,
@@ -183,6 +233,19 @@ export class DocumentosService {
       }
 
       documento.entrega = { id: updateDocumentosDto.entregaId } as any;
+    }
+
+    if (updateDocumentosDto.usuarioId) {
+      // Validar que el usuario existe
+      const usuario = await this.usuarioRepository.findOne({
+        where: { id: updateDocumentosDto.usuarioId }
+      });
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID ${updateDocumentosDto.usuarioId} no encontrado`);
+      }
+
+      documento.usuario = { id: updateDocumentosDto.usuarioId } as any;
     }
 
     return this.documentosRepository.save(documento);

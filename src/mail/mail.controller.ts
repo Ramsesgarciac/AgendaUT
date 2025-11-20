@@ -101,7 +101,8 @@ export class MailController {
         areas: [],
         actividadesCreadas: [],
         notas: [],
-        comentarios: []
+        comentarios: [],
+        documentos: []
       }];
 
       await this.mailService.sendActivityReminder(usuarioPrueba, actividad, diasRestantes);

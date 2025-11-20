@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Actividades } from '../../actividades/entities/actividade.entity';
 import { Entrega } from '../../entrega/entities/entrega/entrega.entity';
+import { Usuario } from '../../usuario/entities/usuario.entity';
 
 
 @Entity('documentos')
@@ -36,4 +37,9 @@ export class Documentos {
   @ManyToOne(() => Entrega, (entrega) => entrega.documento)
   @JoinColumn({ name: 'entregaId' })
   entrega: Entrega;
+
+  // Relación N:1 con Usuario
+  @ManyToOne(() => Usuario, (usuario) => usuario.documentos)
+  @JoinColumn({ name: 'usuarioId' })
+  usuario: Usuario;
 }

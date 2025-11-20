@@ -23,6 +23,10 @@ export class CreateDocumentoDto {
     @IsNumber()
     @IsNotEmpty()
     entregaId: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    usuarioId: number;
 }
 
 // Nuevo DTO para manejar múltiples documentos
