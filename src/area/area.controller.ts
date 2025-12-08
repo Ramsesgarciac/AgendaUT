@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AreaService } from './area.service';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
+import { AddUsuarioToAreaDto } from './dto/add-usuario-to-area.dto';
 
 @Controller('area')
 export class AreaController {
@@ -25,6 +26,11 @@ export class AreaController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAreaDto: UpdateAreaDto) {
     return this.areaService.update(+id, updateAreaDto);
+  }
+
+  @Post(':id/usuarios')
+  addUsuarioToArea(@Param('id') id: string, @Body() addUsuarioToAreaDto: AddUsuarioToAreaDto) {
+    return this.areaService.addUsuarioToArea(+id, addUsuarioToAreaDto.usuarioId);
   }
 
   @Delete(':id')
