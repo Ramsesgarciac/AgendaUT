@@ -22,6 +22,7 @@ export class CreateDocumentoDto {
 
     @IsNumber()
     @IsNotEmpty()
+    @IsOptional()
     entregaId: number;
 
     @IsNumber()

@@ -34,9 +34,9 @@ export class Documentos {
   actividad: Actividades;
 
   // Relación N:1 con Entrega
-  @ManyToOne(() => Entrega, (entrega) => entrega.documento)
+  @ManyToOne(() => Entrega, (entrega) => entrega.documento, { nullable: true})
   @JoinColumn({ name: 'entregaId' })
-  entrega: Entrega;
+  entrega: Entrega | null;
 
   // Relación N:1 con Usuario
   @ManyToOne(() => Usuario, (usuario) => usuario.documentos)

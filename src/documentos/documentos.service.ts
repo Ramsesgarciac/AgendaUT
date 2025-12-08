@@ -99,26 +99,39 @@ export class DocumentosService {
   }
 
   // Método alternativo que acepta un array directamente
-  async createFromArray(
-    documentosData: CreateDocumentoDto[],
-    files?: Express.Multer.File[],
-  ): Promise<Documentos[]> {
-    const documentos: Documentos[] = [];
+  // REEMPLAZA EL MÉTODO createFromArray en documentos.service.ts
 
-    for (let i = 0; i < documentosData.length; i++) {
-      const dto = documentosData[i];
-      const file = files && files[i] ? files[i] : null;
+// REEMPLAZA COMPLETO el método createFromArray en documentos.service.ts
 
-      // Validar que la entrega existe
-      const entrega = await this.entregaRepository.findOne({
-        where: { id: dto.entregaId }
-      });
+async createFromArray(
+  documentosData: CreateDocumentoDto[],
+  files?: Express.Multer.File[],
+): Promise<Documentos[]> {
+  const documentos: Documentos[] = [];
 
-      if (!entrega) {
-        throw new NotFoundException(`Entrega con ID ${dto.entregaId} no encontrada`);
+  for (let i = 0; i < documentosData.length; i++) {
+    const dto = documentosData[i];
+    const file = files && files[i] ? files[i] : null;
+
+    console.log('🔍 Procesando documento:', dto);
+    console.log('📦 Es acuse:', dto.isAcuce);
+    console.log('📦 EntregaId:', dto.entregaId);
+
+    try {
+      // 🔥 SOLO validar entrega si NO es un acuse Y si entregaId está presente
+      if (!dto.isAcuce && dto.entregaId) {
+        console.log('✅ Validando entrega:', dto.entregaId);
+        const entrega = await this.entregaRepository.findOne({
+          where: { id: dto.entregaId }
+        });
+
+        if (!entrega) {
+          throw new NotFoundException(`Entrega con ID ${dto.entregaId} no encontrada`);
+        }
       }
 
       // Validar que el usuario existe
+      console.log('✅ Validando usuario:', dto.usuarioId);
       const usuario = await this.usuarioRepository.findOne({
         where: { id: dto.usuarioId }
       });
@@ -128,29 +141,52 @@ export class DocumentosService {
       }
 
       const documento = new Documentos();
-      documento.nombre = dto.nombre; // Nombre personalizado, independiente del archivo
-      documento.tipoDoc = dto.tipoDoc; // Tipo de documento (ej: "Oficio", "Memorándum")
+      documento.nombre = dto.nombre;
+      documento.tipoDoc = dto.tipoDoc;
       documento.isAcuce = dto.isAcuce ?? false;
       documento.actividad = { id: dto.idActividades } as any;
-      documento.entrega = { id: dto.entregaId } as any;
+      
+      // 🔥 Solo asignar entrega si existe
+      if (dto.entregaId) {
+        console.log('✅ Asignando entrega al documento:', dto.entregaId);
+        documento.entrega = { id: dto.entregaId } as any;
+      } else {
+        console.log('⚠️ Sin entregaId, dejando null');
+        documento.entrega = null;
+      }
+      
       documento.usuario = { id: dto.usuarioId } as any;
+      
       if (file) {
+        console.log('✅ Archivo adjunto:', file.originalname, file.size, 'bytes');
         documento.archivo = file.buffer;
       }
 
       documentos.push(documento);
+      console.log('✅ Documento preparado correctamente');
+      
+    } catch (error) {
+      console.error('❌ Error procesando documento:', error);
+      throw error;
     }
-
-    return this.documentosRepository.save(documentos);
   }
+
+  console.log('💾 Guardando', documentos.length, 'documentos en BD...');
+  const result = await this.documentosRepository.save(documentos);
+  console.log('✅ Documentos guardados exitosamente');
+  return result;
+}
 
   async findAll(): Promise<Documentos[]> {
     return this.documentosRepository.find({
-      relations: ['actividad'],
+      relations: ['actividad', 'usuario'],
       select: {
         id: true,
         nombre: true,
         tipoDoc: true,
+        usuario: {
+          id: true,
+        },
         actividad: {
           id: true,
           asunto: true,
@@ -175,11 +211,14 @@ export class DocumentosService {
   async findByActividad(actividadId: number): Promise<Documentos[]> {
     return this.documentosRepository.find({
       where: { actividad: { id: actividadId } },
-      relations: ['actividad'],
+      relations: ['actividad', 'usuario'],
       select: {
         id: true,
         nombre: true,
         tipoDoc: true,
+        usuario: {
+          id: true,
+        },
         actividad: {
           id: true,
           asunto: true,
