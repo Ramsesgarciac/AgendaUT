@@ -18,7 +18,7 @@ export class ActividadesService {
     private readonly coleccionComentariosRepository: Repository<ColeccionComentarios>,
     private readonly notificationService: NotificationService,
     private readonly statusService: StatusService,
-  ) {}
+  ) { }
 
   async create(createActividadesDto: CreateActividadeDto): Promise<Actividades> {
     // Crear la actividad
@@ -59,10 +59,40 @@ export class ActividadesService {
     return actividadGuardada;
   }
 
-  async findAll(): Promise<Actividades[]> {
-    return this.actividadesRepository.find({
+  async findAll(page: number = 1, limit: number = 50): Promise<{
+    data: Actividades[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }> {
+    // Calcular el offset
+    const skip = (page - 1) * limit;
+
+    // Obtener el total de registros
+    const [data, total] = await this.actividadesRepository.findAndCount({
       relations: ['area', 'userCreate', 'status', 'documentos', 'comentarios', 'coleccionComentarios'],
+      skip,
+      take: limit,
+      order: {
+        id: 'DESC', // Ordenar por ID descendente para mostrar las más recientes primero
+      },
     });
+
+    // Calcular el total de páginas
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   async findOne(id: number): Promise<Actividades> {
@@ -134,7 +164,7 @@ export class ActividadesService {
     }
 
     const actividad = await this.findOne(id);
-    
+
     // Opcional: Eliminar colecciones de comentarios asociadas automáticamente
     // Si tienes cascade configurado, esto se hará automáticamente
     try {
@@ -143,32 +173,92 @@ export class ActividadesService {
     } catch (error) {
       console.error('Error al eliminar colecciones de comentarios:', error);
     }
-    
+
     await this.actividadesRepository.remove(actividad);
   }
 
-  async findByArea(areaId: number): Promise<Actividades[]> {
+  async findByArea(areaId: number, page: number = 1, limit: number = 10): Promise<{
+    data: Actividades[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }> {
     // Validación adicional
     if (!areaId || isNaN(areaId) || areaId <= 0) {
       throw new NotFoundException(`ID de área inválido: ${areaId}`);
     }
 
-    return this.actividadesRepository.find({
+    // Calcular el offset
+    const skip = (page - 1) * limit;
+
+    // Obtener el total de registros
+    const [data, total] = await this.actividadesRepository.findAndCount({
       where: { area: { id: areaId } },
       relations: ['area', 'userCreate', 'status', 'documentos', 'comentarios', 'coleccionComentarios'],
+      skip,
+      take: limit,
+      order: {
+        id: 'DESC',
+      },
     });
+
+    // Calcular el total de páginas
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
-  async findByUser(userId: number): Promise<Actividades[]> {
+  async findByUser(userId: number, page: number = 1, limit: number = 50): Promise<{
+    data: Actividades[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }> {
     // Validación adicional
     if (!userId || isNaN(userId) || userId <= 0) {
       throw new NotFoundException(`ID de usuario inválido: ${userId}`);
     }
 
-    return this.actividadesRepository.find({
+    // Calcular el offset
+    const skip = (page - 1) * limit;
+
+    // Obtener el total de registros
+    const [data, total] = await this.actividadesRepository.findAndCount({
       where: { userCreate: { id: userId } },
       relations: ['area', 'userCreate', 'status', 'documentos', 'comentarios', 'coleccionComentarios'],
+      skip,
+      take: limit,
+      order: {
+        id: 'DESC',
+      },
     });
+
+    // Calcular el total de páginas
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   // Método adicional para crear manualmente una colección de comentarios
@@ -179,11 +269,11 @@ export class ActividadesService {
     }
 
     const actividad = await this.findOne(actividadId);
-    
+
     const coleccionComentarios = this.coleccionComentariosRepository.create({
       actividad: { id: actividad.id }
     });
-    
+
     return await this.coleccionComentariosRepository.save(coleccionComentarios);
   }
 
